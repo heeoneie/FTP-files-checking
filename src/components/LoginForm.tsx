@@ -26,9 +26,9 @@ export const LoginForm = () => {
       const snapshot = await get(usersRef);
 
       if (snapshot.exists()) {
-        const users = snapshot.val();
+        const users = snapshot.val() as Record<string, UserData>;
         const isDuplicate = Object.values(users).some(
-          (user: any) => user.name === name.trim()
+          (user: UserData) => user.name === name.trim()
         );
 
         if (isDuplicate) {
