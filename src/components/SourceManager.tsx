@@ -31,7 +31,9 @@ export const SourceManager = () => {
       return;
     }
 
-    const fullPath = `/${selectedRoot}/${subPath.trim()}`;
+    // Remove leading and trailing slashes to prevent double slashes
+    const sanitizedPath = subPath.trim().replace(/^\/+|\/+$/g, '');
+    const fullPath = `/${selectedRoot}/${sanitizedPath}`;
     addSource(fullPath);
     setSubPath('');
   };
