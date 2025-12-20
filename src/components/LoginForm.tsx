@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ref, get, set } from 'firebase/database';
+import { ref, runTransaction } from 'firebase/database';
 import { database } from '../lib/firebase';
 import { useUserStore } from '../store/userStore';
 import toast from 'react-hot-toast';
@@ -37,24 +37,29 @@ export const LoginForm = () => {
     setLoading(true);
 
     try {
-      // Use username as key to prevent race condition
+      // Use transaction to atomically check and create user
       const userRef = ref(database, `users/${trimmedName}`);
-      const snapshot = await get(userRef);
 
-      if (snapshot.exists()) {
+      const result = await runTransaction(userRef, (currentData) => {
+        // If user already exists, abort transaction
+        if (currentData !== null) {
+          return undefined;
+        }
+
+        // Create new user atomically
+        return {
+          name: trimmedName,
+          isActive: true,
+          loginAt: Date.now(),
+        } as UserData;
+      });
+
+      if (!result.committed) {
         toast.error('이미 사용 중인 이름입니다');
         setLoading(false);
         return;
       }
 
-      // Add new user atomically
-      const newUser: UserData = {
-        name: trimmedName,
-        isActive: true,
-        loginAt: Date.now(),
-      };
-
-      await set(userRef, newUser);
       setUserName(trimmedName);
       toast.success(`${trimmedName}님 환영합니다!`);
     } catch (error) {
