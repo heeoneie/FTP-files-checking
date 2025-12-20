@@ -18,14 +18,45 @@ export const useUserStore = create<UserState>()(
       name: 'user-storage',
       storage: {
         getItem: (name) => {
-          const str = sessionStorage.getItem(name);
-          return str ? JSON.parse(str) : null;
+          try {
+            const str = sessionStorage.getItem(name);
+            if (!str) return null;
+
+            const parsed = JSON.parse(str);
+            return parsed;
+          } catch (error) {
+            console.error(
+              `Failed to parse sessionStorage item "${name}":`,
+              error
+            );
+            // Remove corrupted data
+            try {
+              sessionStorage.removeItem(name);
+            } catch {
+              // Silently fail if removeItem also fails
+            }
+            return null;
+          }
         },
         setItem: (name, value) => {
-          sessionStorage.setItem(name, JSON.stringify(value));
+          try {
+            sessionStorage.setItem(name, JSON.stringify(value));
+          } catch (error) {
+            console.error(
+              `Failed to save to sessionStorage "${name}":`,
+              error
+            );
+          }
         },
         removeItem: (name) => {
-          sessionStorage.removeItem(name);
+          try {
+            sessionStorage.removeItem(name);
+          } catch (error) {
+            console.error(
+              `Failed to remove sessionStorage item "${name}":`,
+              error
+            );
+          }
         },
       },
     }
