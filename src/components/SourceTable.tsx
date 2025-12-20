@@ -54,9 +54,11 @@ export const SourceTable = ({ sources, onCheck, onDelete }: SourceTableProps) =>
   };
 
   const handleCheckboxChange = (source: Source) => {
-    if (userName) {
-      onCheck(source.id, userName);
-    }
+    if (!userName) return;
+
+    // Toggle: if already checked by current user, uncheck; otherwise check
+    const isChecked = source.useUser === userName;
+    onCheck(source.id, isChecked ? '' : userName);
   };
 
   return (
