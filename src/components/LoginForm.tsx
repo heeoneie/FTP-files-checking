@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { ref, get, push } from 'firebase/database';
+import { ref, get, set } from 'firebase/database';
 import { database } from '../lib/firebase';
 import { useUserStore } from '../store/userStore';
 import toast from 'react-hot-toast';
 import type { UserData } from '../types';
+
+const MIN_NAME_LENGTH = 2;
+const MAX_NAME_LENGTH = 20;
 
 export const LoginForm = () => {
   const [name, setName] = useState('');
@@ -13,41 +16,47 @@ export const LoginForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim()) {
+    const trimmedName = name.trim();
+
+    // Validate input length
+    if (!trimmedName) {
       toast.error('이름을 입력해주세요');
+      return;
+    }
+
+    if (trimmedName.length < MIN_NAME_LENGTH) {
+      toast.error(`이름은 최소 ${MIN_NAME_LENGTH}자 이상이어야 합니다`);
+      return;
+    }
+
+    if (trimmedName.length > MAX_NAME_LENGTH) {
+      toast.error(`이름은 최대 ${MAX_NAME_LENGTH}자까지 입력 가능합니다`);
       return;
     }
 
     setLoading(true);
 
     try {
-      // Check for duplicate name
-      const usersRef = ref(database, 'users');
-      const snapshot = await get(usersRef);
+      // Use username as key to prevent race condition
+      const userRef = ref(database, `users/${trimmedName}`);
+      const snapshot = await get(userRef);
 
       if (snapshot.exists()) {
-        const users = snapshot.val() as Record<string, UserData>;
-        const isDuplicate = Object.values(users).some(
-          (user: UserData) => user.name === name.trim()
-        );
-
-        if (isDuplicate) {
-          toast.error('이미 사용 중인 이름입니다');
-          setLoading(false);
-          return;
-        }
+        toast.error('이미 사용 중인 이름입니다');
+        setLoading(false);
+        return;
       }
 
-      // Add new user
+      // Add new user atomically
       const newUser: UserData = {
-        name: name.trim(),
+        name: trimmedName,
         isActive: true,
         loginAt: Date.now(),
       };
 
-      await push(usersRef, newUser);
-      setUserName(name.trim());
-      toast.success(`${name.trim()}님 환영합니다!`);
+      await set(userRef, newUser);
+      setUserName(trimmedName);
+      toast.success(`${trimmedName}님 환영합니다!`);
     } catch (error) {
       console.error('Login error:', error);
       toast.error('로그인에 실패했습니다');
@@ -80,6 +89,7 @@ export const LoginForm = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="이름을 입력하세요"
+              maxLength={MAX_NAME_LENGTH}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               disabled={loading}
             />
