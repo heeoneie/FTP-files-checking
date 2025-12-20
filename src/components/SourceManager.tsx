@@ -43,7 +43,7 @@ export const SourceManager = () => {
     toast.success('로그아웃 되었습니다');
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleAddSource();
     }
@@ -127,7 +127,7 @@ export const SourceManager = () => {
                     type="text"
                     value={subPath}
                     onChange={(e) => setSubPath(e.target.value)}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyDown}
                     placeholder="예: test.php 또는 검색어 입력"
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
