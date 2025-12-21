@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Source } from '../types';
 import { useUserStore } from '../store/userStore';
+import { Trash2, FileCode } from 'lucide-react';
 
 interface SourceTableProps {
   sources: Source[];
@@ -63,49 +64,78 @@ export const SourceTable = ({ sources, onCheck, onDelete }: SourceTableProps) =>
 
   return (
     <>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300">
-          <thead className="bg-[#1e3a5f] text-white">
-            <tr>
-              <th className="py-3 px-4 text-left w-20">체크</th>
-              <th className="py-3 px-4 text-left">Source</th>
-              <th className="py-3 px-4 text-left w-40">Use user</th>
-              <th className="py-3 px-4 text-left w-40">Last user</th>
-              <th className="py-3 px-4 text-left w-40">Last update date</th>
+      <div className="w-full">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="border-b border-stone-200">
+              <th className="w-12 py-2 px-4 text-left bg-stone-50">
+                <div className="w-4 h-4 rounded border border-stone-300 bg-white" />
+              </th>
+              <th className="py-2 px-3 text-left text-xs font-semibold text-stone-600 bg-stone-50">
+                Source
+              </th>
+              <th className="w-40 py-2 px-3 text-left text-xs font-semibold text-stone-600 bg-stone-50">
+                Use user
+              </th>
+              <th className="w-40 py-2 px-3 text-left text-xs font-semibold text-stone-600 bg-stone-50">
+                Last user
+              </th>
+              <th className="w-48 py-2 px-3 text-left text-xs font-semibold text-stone-600 bg-stone-50">
+                Last update
+              </th>
             </tr>
           </thead>
           <tbody>
             {sources.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-gray-500">
-                  등록된 소스가 없습니다
+                <td colSpan={5} className="py-32 text-center">
+                  <div className="flex flex-col items-center gap-3 text-stone-400">
+                    <FileCode className="w-12 h-12" />
+                    <p className="text-sm">No sources yet</p>
+                    <p className="text-xs">Add your first source to get started</p>
+                  </div>
                 </td>
               </tr>
             ) : (
               sources.map((source) => {
                 const isCheckedByMe = source.useUser === userName;
+
                 return (
                   <tr
                     key={source.id}
-                    className={`border-b border-gray-200 hover:bg-gray-50 ${
-                      isCheckedByMe ? 'bg-[#fff3e0]' : ''
-                    }`}
+                    className={`border-b border-stone-200 ${
+                      isCheckedByMe ? 'bg-blue-50/30' : ''
+                    } hover:bg-stone-50 transition-colors`}
                     onContextMenu={(e) => handleContextMenu(e, source.id)}
                   >
-                    <td className="py-3 px-4">
+                    <td className="py-2 px-3">
                       <input
                         type="checkbox"
                         checked={!!source.useUser}
                         onChange={() => handleCheckboxChange(source)}
-                        className="w-5 h-5 cursor-pointer accent-orange-500"
+                        className="w-4 h-4 cursor-pointer rounded border-stone-300 text-blue-600 focus:ring-1 focus:ring-blue-500"
                       />
                     </td>
-                    <td className="py-3 px-4 font-mono text-sm">
-                      {source.path}
+                    <td className="py-2 px-3">
+                      <span className="font-mono text-sm text-stone-900">{source.path}</span>
                     </td>
-                    <td className="py-3 px-4">{source.useUser}</td>
-                    <td className="py-3 px-4">{source.lastUser}</td>
-                    <td className="py-3 px-4">{source.lastUpdateDate}</td>
+                    <td className="py-2 px-3">
+                      {source.useUser ? (
+                        <span className="text-sm text-stone-900">{source.useUser}</span>
+                      ) : (
+                        <span className="text-sm text-stone-400">-</span>
+                      )}
+                    </td>
+                    <td className="py-2 px-3">
+                      <span className="text-sm text-stone-600">
+                        {source.lastUser || '-'}
+                      </span>
+                    </td>
+                    <td className="py-2 px-3">
+                      <span className="text-sm text-stone-500">
+                        {source.lastUpdateDate || '-'}
+                      </span>
+                    </td>
                   </tr>
                 );
               })
@@ -116,7 +146,7 @@ export const SourceTable = ({ sources, onCheck, onDelete }: SourceTableProps) =>
 
       {contextMenu.visible && (
         <div
-          className="fixed bg-white border border-gray-300 rounded shadow-lg z-50"
+          className="fixed bg-white border border-stone-200 rounded-md shadow-xl z-50 py-1"
           style={{
             left: `${contextMenu.x}px`,
             top: `${contextMenu.y}px`,
@@ -124,9 +154,10 @@ export const SourceTable = ({ sources, onCheck, onDelete }: SourceTableProps) =>
         >
           <button
             onClick={handleDelete}
-            className="block w-full px-4 py-2 text-left text-red-600 hover:bg-gray-100 whitespace-nowrap"
+            className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
           >
-            삭제
+            <Trash2 className="w-4 h-4" />
+            Delete
           </button>
         </div>
       )}

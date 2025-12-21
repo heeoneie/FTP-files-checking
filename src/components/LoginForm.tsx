@@ -4,6 +4,10 @@ import { database } from '../lib/firebase';
 import { useUserStore } from '../store/userStore';
 import toast from 'react-hot-toast';
 import type { UserData } from '../types';
+import { Loader2 } from 'lucide-react';
+import { Card, CardContent } from './ui/card';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
 
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 20;
@@ -79,47 +83,56 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">
-          FTP File Checking
-        </h1>
-        <p className="text-center text-gray-600 mb-8">
-          실시간 협업 체킹 시스템
-        </p>
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-1">
+            FTP File Checking
+          </h1>
+          <p className="text-sm text-gray-500">
+            실시간 협업 체킹 시스템
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              이름
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="이름을 입력하세요"
-              maxLength={MAX_NAME_LENGTH}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              disabled={loading}
-            />
-          </div>
+        <Card className="border border-gray-200 shadow-sm">
+          <CardContent className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-1.5"
+                >
+                  이름
+                </label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="이름을 입력하세요"
+                  maxLength={MAX_NAME_LENGTH}
+                  disabled={loading}
+                  className="h-10"
+                />
+              </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? '로그인 중...' : '입장하기'}
-          </button>
-        </form>
-
-        <p className="text-xs text-center text-gray-500 mt-6">
-          Firebase 기반 실시간 협업 체킹 시스템
-        </p>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    로그인 중...
+                  </>
+                ) : (
+                  '입장하기'
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
