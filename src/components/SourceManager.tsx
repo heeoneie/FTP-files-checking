@@ -13,29 +13,30 @@ export const SourceManager = () => {
   const { sources, loading, addSource, updateSource, deleteSource } = useSources();
 
   const [selectedRoot, setSelectedRoot] = useState<RootPath>('sysadmin');
-  const [subPath, setSubPath] = useState('');
+  const [newSourcePath, setNewSourcePath] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Filter sources based on search
   const filteredSources = useMemo(() => {
-    if (!subPath.trim()) {
+    if (!searchQuery.trim()) {
       return sources;
     }
     return sources.filter((source) =>
-      source.path.toLowerCase().includes(subPath.toLowerCase())
+      source.path.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [sources, subPath]);
+  }, [sources, searchQuery]);
 
   const handleAddSource = () => {
-    if (!subPath.trim()) {
+    if (!newSourcePath.trim()) {
       toast.error('경로를 입력해주세요');
       return;
     }
 
     // Remove leading and trailing slashes to prevent double slashes
-    const sanitizedPath = subPath.trim().replace(/^\/+|\/+$/g, '');
+    const sanitizedPath = newSourcePath.trim().replace(/^\/+|\/+$/g, '');
     const fullPath = `/${selectedRoot}/${sanitizedPath}`;
     addSource(fullPath);
-    setSubPath('');
+    setNewSourcePath('');
   };
 
   const handleLogout = () => {
@@ -109,26 +110,26 @@ export const SourceManager = () => {
               </div>
             </div>
 
-            {/* Path Input */}
+            {/* New Source Path Input */}
             <div className="flex gap-2">
               <div className="flex-1">
                 <label
-                  htmlFor="subpath"
+                  htmlFor="newSourcePath"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  하위 경로
+                  새 소스 추가
                 </label>
                 <div className="flex gap-2">
                   <span className="inline-flex items-center px-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-gray-600 text-sm">
                     /{selectedRoot}/
                   </span>
                   <input
-                    id="subpath"
+                    id="newSourcePath"
                     type="text"
-                    value={subPath}
-                    onChange={(e) => setSubPath(e.target.value)}
+                    value={newSourcePath}
+                    onChange={(e) => setNewSourcePath(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="예: test.php 또는 검색어 입력"
+                    placeholder="예: test.php"
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
@@ -147,9 +148,20 @@ export const SourceManager = () => {
 
         {/* Sources Table */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold mb-4 text-gray-800">
-            소스 목록 ({filteredSources.length})
-          </h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">
+              소스 목록 ({filteredSources.length})
+            </h2>
+            <div className="w-64">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="검색..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+            </div>
+          </div>
           <SourceTable
             sources={filteredSources}
             onCheck={updateSource}

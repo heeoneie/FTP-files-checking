@@ -7,6 +7,8 @@ import type { UserData } from '../types';
 
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 20;
+// Firebase Realtime Database key constraints
+const INVALID_CHARS = /[.$#[\]/]/;
 
 export const LoginForm = () => {
   const [name, setName] = useState('');
@@ -31,6 +33,12 @@ export const LoginForm = () => {
 
     if (trimmedName.length > MAX_NAME_LENGTH) {
       toast.error(`이름은 최대 ${MAX_NAME_LENGTH}자까지 입력 가능합니다`);
+      return;
+    }
+
+    // Validate Firebase key constraints
+    if (INVALID_CHARS.test(trimmedName)) {
+      toast.error('이름에 특수문자(. $ # [ ] /)를 사용할 수 없습니다');
       return;
     }
 
