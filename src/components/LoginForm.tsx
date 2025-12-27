@@ -5,9 +5,6 @@ import { useUserStore } from '../store/userStore';
 import toast from 'react-hot-toast';
 import type { UserData } from '../types';
 import { Loader2 } from 'lucide-react';
-import { Card, CardContent } from './ui/card';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
 
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 20;
@@ -83,56 +80,49 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-1">
-            FTP File Checking
-          </h1>
-          <p className="text-sm text-gray-500">
-            실시간 협업 체킹 시스템
+    <div className="auth-hero">
+      <div className="auth-panel">
+        <div>
+          <p className="auth-panel__eyebrow">Live workspace</p>
+          <h1 className="auth-panel__title">FTP File Checking</h1>
+          <p className="auth-panel__description">
+            팀원이 동시에 같은 파일을 만지지 않도록 출입 명부를 남겨주세요.
+            이름은 한 세션 동안 고유하게 유지됩니다.
           </p>
         </div>
 
-        <Card className="border border-gray-200 shadow-sm">
-          <CardContent className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1.5"
-                >
-                  이름
-                </label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="이름을 입력하세요"
-                  maxLength={MAX_NAME_LENGTH}
-                  disabled={loading}
-                  className="h-10"
-                />
-              </div>
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div>
+            <label htmlFor="name" className="form-label">
+              작업자 이름
+            </label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="예: heeeione"
+              maxLength={MAX_NAME_LENGTH}
+              disabled={loading}
+              className="form-input"
+            />
+          </div>
 
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    로그인 중...
-                  </>
-                ) : (
-                  '입장하기'
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+          <button
+            type="submit"
+            disabled={loading}
+            className="primary-button"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                로그인 중...
+              </>
+            ) : (
+              '워크스페이스 입장'
+            )}
+          </button>
+        </form>
       </div>
     </div>
   );
