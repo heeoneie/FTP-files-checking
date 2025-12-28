@@ -3,10 +3,12 @@ import { ref, onValue, push, update, remove } from 'firebase/database';
 import { database } from '../lib/firebase';
 import type { Source, SourceData } from '../types';
 import toast from 'react-hot-toast';
+import { useUserStore } from '../store/userStore';
 
 export const useSources = () => {
   const [sources, setSources] = useState<Source[]>([]);
   const [loading, setLoading] = useState(true);
+  const currentUser = useUserStore((state) => state.userName);
 
   useEffect(() => {
     const sourcesRef = ref(database, 'sources');
@@ -16,14 +18,24 @@ export const useSources = () => {
       (snapshot) => {
         const data = snapshot.val();
         if (data) {
-          const sourcesArray: Source[] = Object.entries(data).map(
-            ([id, value]) => ({
+          const sourcesArray: Source[] = Object.entries(data)
+            .map(([id, value]) => ({
               id,
               ...(value as SourceData),
-            })
-          );
-          // Sort by timestamp descending (newest first)
-          sourcesArray.sort((a, b) => b.timestamp - a.timestamp);
+            }))
+            .sort((a, b) => {
+              const aOwned = a.useUser === currentUser;
+              const bOwned = b.useUser === currentUser;
+
+              if (aOwned && !bOwned) return -1;
+              if (!aOwned && bOwned) return 1;
+
+              return a.path.localeCompare(b.path, undefined, {
+                sensitivity: 'base',
+                numeric: true,
+              });
+            });
+
           setSources(sourcesArray);
         } else {
           setSources([]);
@@ -38,7 +50,7 @@ export const useSources = () => {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [currentUser]);
 
   const addSource = async (path: string) => {
     try {
