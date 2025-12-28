@@ -54,7 +54,7 @@ export const SourceManager = () => {
 
   if (loading) {
     return (
-      <div className="loading-screen">
+      <div className="loading-screen" aria-live="polite">
         <Loader2 className="w-12 h-12 animate-spin" />
         <p>워크스페이스를 준비하는 중입니다...</p>
       </div>
@@ -79,7 +79,7 @@ export const SourceManager = () => {
       <aside className="workspace-panel">
         <div className="workspace-panel__profile">
           <Avatar className="h-12 w-12">
-            <AvatarFallback className="text-sm bg-gradient-to-br from-violet-500 to-pink-500 text-white">
+            <AvatarFallback className="text-sm bg-blue-100 text-blue-700">
               {getInitials(userName || 'U')}
             </AvatarFallback>
           </Avatar>
@@ -94,21 +94,21 @@ export const SourceManager = () => {
 
         <div className="workspace-panel__stats">
           <div className="stat-card">
-            <div className="stat-label">Total</div>
+            <div className="stat-label">전체</div>
             <div className="stat-value">{totalSources}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">My tasks</div>
+            <div className="stat-label">내 작업</div>
             <div className="stat-value">{mySources}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">Busy</div>
+            <div className="stat-label">사용 중</div>
             <div className="stat-value">{busySources}</div>
           </div>
         </div>
 
         <div className="workspace-panel__list">
-          <label>Workspace</label>
+          <label>워크스페이스</label>
           <button type="button">
             <FileCheck2 className="w-4 h-4" />
             FTP File Checking
@@ -119,23 +119,24 @@ export const SourceManager = () => {
       <main className="content-panel">
         <header className="content-header">
           <div>
-            <span>Active Session</span>
-            <h2>소스 관리</h2>
+            <span>실시간 현황</span>
+            <h2>소스 현황판</h2>
           </div>
           <div className="search-field">
-            <Search />
+            <Search aria-hidden="true" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="경로나 파일명을 검색하세요"
+              placeholder="경로 또는 파일명을 검색하세요"
+              aria-label="경로 검색"
             />
           </div>
         </header>
 
         <section className="toolbar">
           <div>
-            <p className="form-label">Root 경로</p>
+            <p className="form-label">루트 경로</p>
             <div className="pill-group">
               {ROOT_PATHS.map((path) => (
                 <button
@@ -160,8 +161,13 @@ export const SourceManager = () => {
               onKeyDown={handleKeyDown}
               placeholder="path/to/file.php"
               className="path-builder__input"
+              aria-label="새 경로 입력"
             />
-            <button type="button" onClick={handleAddSource} className="primary-button">
+            <button
+              type="button"
+              onClick={handleAddSource}
+              className="primary-button"
+            >
               <Plus className="w-4 h-4" />
               경로 추가
             </button>

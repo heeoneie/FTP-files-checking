@@ -134,7 +134,7 @@ export const SourceTable = ({ sources, onCheck, onDelete }: SourceTableProps) =>
         >
           <button onClick={handleDelete}>
             <Trash2 className="w-4 h-4" />
-            Delete
+            삭제
           </button>
         </div>
       )}

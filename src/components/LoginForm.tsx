@@ -83,11 +83,11 @@ export const LoginForm = () => {
     <div className="auth-hero">
       <div className="auth-panel">
         <div>
-          <p className="auth-panel__eyebrow">Live workspace</p>
-          <h1 className="auth-panel__title">FTP File Checking</h1>
+          <p className="auth-panel__eyebrow">Realtime log</p>
+          <h1 className="auth-panel__title">FTP 파일 체크인</h1>
           <p className="auth-panel__description">
-            팀원이 동시에 같은 파일을 만지지 않도록 출입 명부를 남겨주세요.
-            이름은 한 세션 동안 고유하게 유지됩니다.
+            같은 경로를 동시에 수정하지 않도록 담당자를 기록합니다.
+            오늘 사용할 이름을 입력하고 체크인을 완료하세요.
           </p>
         </div>
 
@@ -101,7 +101,7 @@ export const LoginForm = () => {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="예: heeeione"
+              placeholder="예: heeeione / design팀"
               maxLength={MAX_NAME_LENGTH}
               disabled={loading}
               className="form-input"
