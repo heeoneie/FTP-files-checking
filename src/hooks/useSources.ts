@@ -58,24 +58,25 @@ export const useSources = () => {
     }
   };
 
-  const updateSource = async (id: string, userName: string) => {
+  const updateSource = async (source: Source, nextUserName: string) => {
     try {
-      const sourceRef = ref(database, `sources/${id}`);
+      const sourceRef = ref(database, `sources/${source.id}`);
+      const today = new Date().toISOString().split('T')[0];
+      const previousUser = source.useUser || source.lastUser;
 
-      if (userName) {
-        // Check: set user name and date
-        const today = new Date().toISOString().split('T')[0];
+      if (nextUserName) {
         await update(sourceRef, {
-          useUser: userName,
-          lastUser: userName,
+          useUser: nextUserName,
+          lastUser: previousUser || '',
           lastUpdateDate: today,
           timestamp: Date.now(),
         });
-        toast.success(`${userName}님이 파일을 체크했습니다`);
+        toast.success(`${nextUserName}님이 파일을 체크했습니다`);
       } else {
-        // Uncheck: clear user name but keep last user info
         await update(sourceRef, {
           useUser: '',
+          lastUser: source.useUser || previousUser || '',
+          lastUpdateDate: today,
           timestamp: Date.now(),
         });
         toast.success('체크를 해제했습니다');

@@ -50,12 +50,11 @@ export const LoginForm = () => {
       const userRef = ref(database, `users/${trimmedName}`);
 
       const result = await runTransaction(userRef, (currentData) => {
-        // If user already exists, abort transaction
-        if (currentData !== null) {
+        // Block if 동일 이름이 아직 활성 상태
+        if (currentData?.isActive) {
           return undefined;
         }
 
-        // Create new user atomically
         return {
           name: trimmedName,
           isActive: true,
