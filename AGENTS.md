@@ -17,7 +17,7 @@ Vite 기반 React 앱은 `src/main.tsx`와 `src/App.tsx`에서 시작하며, 재
 
 ## Security & Configuration Tips
 `src/lib/firebase.ts`는 필수 `VITE_FIREBASE_*` 값이 없으면 바로 예외를 던집니다. `.env.local`에 아래와 같이 정의하세요.
-```
+```bash
 VITE_FIREBASE_API_KEY=xxxx
 VITE_FIREBASE_DATABASE_URL=https://<project>.firebaseio.com
 ```
