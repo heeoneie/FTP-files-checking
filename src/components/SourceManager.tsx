@@ -62,9 +62,17 @@ export const SourceManager = () => {
   }
 
   const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
+    const tokens = name
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (tokens.length === 0) {
+      return 'U';
+    }
+
+    return tokens
+      .map((token) => token.charAt(0))
       .join('')
       .toUpperCase()
       .slice(0, 2);
