@@ -4,6 +4,7 @@ import { database } from '../lib/firebase';
 import { useUserStore } from '../store/userStore';
 import toast from 'react-hot-toast';
 import type { UserData } from '../types';
+import { Loader2 } from 'lucide-react';
 
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 20;
@@ -79,47 +80,49 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">
-          FTP File Checking
-        </h1>
-        <p className="text-center text-gray-600 mb-8">
-          실시간 협업 체킹 시스템
-        </p>
+    <div className="auth-hero">
+      <div className="auth-panel">
+        <div>
+          <p className="auth-panel__eyebrow">Realtime log</p>
+          <h1 className="auth-panel__title">FTP 파일 체크인</h1>
+          <p className="auth-panel__description">
+            같은 경로를 동시에 수정하지 않도록 담당자를 기록합니다.
+            오늘 사용할 이름을 입력하고 체크인을 완료하세요.
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="auth-form">
           <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              이름
+            <label htmlFor="name" className="form-label">
+              작업자 이름
             </label>
             <input
               id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="이름을 입력하세요"
+              placeholder="예: heeeione / design팀"
               maxLength={MAX_NAME_LENGTH}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               disabled={loading}
+              className="form-input"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="primary-button"
           >
-            {loading ? '로그인 중...' : '입장하기'}
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                로그인 중...
+              </>
+            ) : (
+              '워크스페이스 입장'
+            )}
           </button>
         </form>
-
-        <p className="text-xs text-center text-gray-500 mt-6">
-          Firebase 기반 실시간 협업 체킹 시스템
-        </p>
       </div>
     </div>
   );

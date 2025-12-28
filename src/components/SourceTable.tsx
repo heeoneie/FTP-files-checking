@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Source } from '../types';
 import { useUserStore } from '../store/userStore';
+import { Trash2, FileCode } from 'lucide-react';
 
 interface SourceTableProps {
   sources: Source[];
@@ -63,69 +64,76 @@ export const SourceTable = ({ sources, onCheck, onDelete }: SourceTableProps) =>
 
   return (
     <>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300">
-          <thead className="bg-[#1e3a5f] text-white">
+      <table className="data-table">
+        <thead>
+          <tr>
+            <th style={{ width: '56px' }} aria-label="선택" />
+            <th>Source</th>
+            <th>Use user</th>
+            <th>Last user</th>
+            <th>Last update</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sources.length === 0 ? (
             <tr>
-              <th className="py-3 px-4 text-left w-20">체크</th>
-              <th className="py-3 px-4 text-left">Source</th>
-              <th className="py-3 px-4 text-left w-40">Use user</th>
-              <th className="py-3 px-4 text-left w-40">Last user</th>
-              <th className="py-3 px-4 text-left w-40">Last update date</th>
+              <td colSpan={5}>
+                <div className="empty-state">
+                  <FileCode className="empty-state__icon" />
+                  <p>아직 등록된 경로가 없습니다.</p>
+                  <p>좌측 입력창에서 첫 번째 경로를 추가해 보세요.</p>
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {sources.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="py-8 text-center text-gray-500">
-                  등록된 소스가 없습니다
-                </td>
-              </tr>
-            ) : (
-              sources.map((source) => {
-                const isCheckedByMe = source.useUser === userName;
-                return (
-                  <tr
-                    key={source.id}
-                    className={`border-b border-gray-200 hover:bg-gray-50 ${
-                      isCheckedByMe ? 'bg-[#fff3e0]' : ''
-                    }`}
-                    onContextMenu={(e) => handleContextMenu(e, source.id)}
-                  >
-                    <td className="py-3 px-4">
-                      <input
-                        type="checkbox"
-                        checked={!!source.useUser}
-                        onChange={() => handleCheckboxChange(source)}
-                        className="w-5 h-5 cursor-pointer accent-orange-500"
-                      />
-                    </td>
-                    <td className="py-3 px-4 font-mono text-sm">
-                      {source.path}
-                    </td>
-                    <td className="py-3 px-4">{source.useUser}</td>
-                    <td className="py-3 px-4">{source.lastUser}</td>
-                    <td className="py-3 px-4">{source.lastUpdateDate}</td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+          ) : (
+            sources.map((source) => {
+              const isCheckedByMe = source.useUser === userName;
+              const usageClass = source.useUser
+                ? isCheckedByMe
+                  ? 'usage-tag--mine'
+                  : 'usage-tag--busy'
+                : 'usage-tag--idle';
+
+              return (
+                <tr
+                  key={source.id}
+                  onContextMenu={(e) => handleContextMenu(e, source.id)}
+                >
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={!!source.useUser}
+                      onChange={() => handleCheckboxChange(source)}
+                      className="table-checkbox"
+                    />
+                  </td>
+                  <td>
+                    <span className="path-label">{source.path}</span>
+                  </td>
+                  <td>
+                    <span className={`usage-tag ${usageClass}`}>
+                      {source.useUser ? source.useUser : '대기 중'}
+                    </span>
+                  </td>
+                  <td>{source.lastUser || '-'}</td>
+                  <td>{source.lastUpdateDate || '-'}</td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
 
       {contextMenu.visible && (
         <div
-          className="fixed bg-white border border-gray-300 rounded shadow-lg z-50"
+          className="context-menu"
           style={{
             left: `${contextMenu.x}px`,
             top: `${contextMenu.y}px`,
           }}
         >
-          <button
-            onClick={handleDelete}
-            className="block w-full px-4 py-2 text-left text-red-600 hover:bg-gray-100 whitespace-nowrap"
-          >
+          <button onClick={handleDelete}>
+            <Trash2 className="w-4 h-4" />
             삭제
           </button>
         </div>

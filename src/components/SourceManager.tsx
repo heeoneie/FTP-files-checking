@@ -4,6 +4,8 @@ import { useSources } from '../hooks/useSources';
 import { SourceTable } from './SourceTable';
 import type { RootPath } from '../types';
 import toast from 'react-hot-toast';
+import { FileCheck2, LogOut, Search, Plus, Loader2 } from 'lucide-react';
+import { Avatar, AvatarFallback } from './ui/avatar';
 
 const ROOT_PATHS: RootPath[] = ['sysadmin', 'www', 'amp_set'];
 
@@ -52,130 +54,144 @@ export const SourceManager = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-gray-600">로딩 중...</div>
+      <div className="loading-screen" aria-live="polite">
+        <Loader2 className="w-12 h-12 animate-spin" />
+        <p>워크스페이스를 준비하는 중입니다...</p>
       </div>
     );
   }
 
+  const getInitials = (name: string) => {
+    const tokens = name
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (tokens.length === 0) {
+      return 'U';
+    }
+
+    return tokens
+      .map((token) => token.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const totalSources = sources.length;
+  const mySources = sources.filter((s) => s.useUser === userName).length;
+  const busySources = sources.filter((s) => s.useUser && s.useUser !== userName).length;
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-[#1e3a5f] text-white shadow-md">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">FTP File Checking System</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm">
-              <span className="text-gray-300">사용자:</span>{' '}
-              <span className="font-medium">{userName}</span>
-            </span>
+    <div className="dashboard-shell">
+      <aside className="workspace-panel">
+        <div className="workspace-panel__profile">
+          <Avatar className="h-12 w-12">
+            <AvatarFallback className="text-sm bg-blue-100 text-blue-700">
+              {getInitials(userName || 'U')}
+            </AvatarFallback>
+          </Avatar>
+          <div className="profile-meta">
+            <div className="profile-name">{userName}</div>
+            <div className="profile-role">Workspace member</div>
+          </div>
+          <button className="ghost-button" type="button" onClick={handleLogout}>
+            <LogOut className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="workspace-panel__stats">
+          <div className="stat-card">
+            <div className="stat-label">전체</div>
+            <div className="stat-value">{totalSources}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">내 작업</div>
+            <div className="stat-value">{mySources}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">사용 중</div>
+            <div className="stat-value">{busySources}</div>
+          </div>
+        </div>
+
+        <div className="workspace-panel__list">
+          <label>워크스페이스</label>
+          <button type="button">
+            <FileCheck2 className="w-4 h-4" />
+            FTP File Checking
+          </button>
+        </div>
+      </aside>
+
+      <main className="content-panel">
+        <header className="content-header">
+          <div>
+            <span>실시간 현황</span>
+            <h2>소스 현황판</h2>
+          </div>
+          <div className="search-field">
+            <Search aria-hidden="true" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="경로 또는 파일명을 검색하세요"
+              aria-label="경로 검색"
+            />
+          </div>
+        </header>
+
+        <section className="toolbar">
+          <div>
+            <p className="form-label">루트 경로</p>
+            <div className="pill-group">
+              {ROOT_PATHS.map((path) => (
+                <button
+                  key={path}
+                  type="button"
+                  onClick={() => setSelectedRoot(path)}
+                  className={`pill ${selectedRoot === path ? 'pill--active' : ''}`}
+                  aria-pressed={selectedRoot === path}
+                >
+                  {path}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="path-builder">
+            <span className="path-builder__prefix">/{selectedRoot}/</span>
+            <input
+              type="text"
+              value={newSourcePath}
+              onChange={(e) => setNewSourcePath(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="path/to/file.php"
+              className="path-builder__input"
+              aria-label="새 경로 입력"
+            />
             <button
-              onClick={handleLogout}
-              className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-sm font-medium transition-colors"
+              type="button"
+              onClick={handleAddSource}
+              className="primary-button"
             >
-              로그아웃
+              <Plus className="w-4 h-4" />
+              경로 추가
             </button>
           </div>
-        </div>
-      </header>
+        </section>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Control Panel */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4 text-gray-800">
-            소스 추가
-          </h2>
-
-          <div className="space-y-4">
-            {/* Root Path Buttons */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                루트 경로
-              </label>
-              <div className="flex gap-2">
-                {ROOT_PATHS.map((path) => (
-                  <button
-                    key={path}
-                    onClick={() => setSelectedRoot(path)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                      selectedRoot === path
-                        ? 'bg-orange-500 text-white'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
-                  >
-                    {path}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* New Source Path Input */}
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label
-                  htmlFor="newSourcePath"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  새 소스 추가
-                </label>
-                <div className="flex gap-2">
-                  <span className="inline-flex items-center px-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-gray-600 text-sm">
-                    /{selectedRoot}/
-                  </span>
-                  <input
-                    id="newSourcePath"
-                    type="text"
-                    value={newSourcePath}
-                    onChange={(e) => setNewSourcePath(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="예: test.php"
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-              <div className="flex items-end">
-                <button
-                  onClick={handleAddSource}
-                  className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                >
-                  Add Source
-                </button>
-              </div>
-            </div>
+        <section className="content-table">
+          <div className="table-card">
+            <SourceTable
+              sources={filteredSources}
+              onCheck={updateSource}
+              onDelete={deleteSource}
+            />
           </div>
-        </div>
-
-        {/* Sources Table */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">
-              소스 목록 ({filteredSources.length})
-            </h2>
-            <div className="w-64">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="검색..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-              />
-            </div>
-          </div>
-          <SourceTable
-            sources={filteredSources}
-            onCheck={updateSource}
-            onDelete={deleteSource}
-          />
-        </div>
+        </section>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-4 mt-12">
-        <div className="container mx-auto px-4 text-center text-sm">
-          Firebase 기반 실시간 협업 체킹 시스템
-        </div>
-      </footer>
     </div>
   );
 };
