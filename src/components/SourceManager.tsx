@@ -49,8 +49,8 @@ export const SourceManager = () => {
         const userRef = ref(database, `users/${userName}`);
         await update(userRef, { isActive: false, logoutAt: Date.now() });
         toast.success('로그아웃 되었습니다');
-      } catch (error) {
-        console.error('Failed to mark user as inactive:', error);
+      } catch (error: any) {
+        console.error('Failed to mark user as inactive:', error?.code || error?.message || 'Unknown error');
         toast.error('서버 로그아웃에 실패했지만 세션은 종료됩니다.');
       }
     }

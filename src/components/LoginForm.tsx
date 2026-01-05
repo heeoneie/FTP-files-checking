@@ -69,8 +69,8 @@ export const LoginForm = () => {
 
       setUserName(trimmedName);
       toast.success(`${trimmedName}님 환영합니다!`);
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (error: any) {
+      console.error('Login error:', error?.code || error?.message || 'Unknown error');
       toast.error('로그인에 실패했습니다');
     } finally {
       setLoading(false);
