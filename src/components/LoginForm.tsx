@@ -49,7 +49,7 @@ export const LoginForm = () => {
       // Use transaction to atomically login or create user
       const userRef = ref(database, `users/${trimmedName}`);
 
-      await runTransaction(userRef, (currentData) => {
+      const result = await runTransaction(userRef, (currentData) => {
         // If user doesn't exist, create new user
         if (currentData === null) {
           return {
@@ -66,6 +66,10 @@ export const LoginForm = () => {
           loginAt: Date.now(),
         } as UserData;
       });
+
+      if (!result.committed) {
+        throw new Error('Transaction was aborted');
+      }
 
       setUserName(trimmedName);
       toast.success(`${trimmedName}님 환영합니다!`);
