@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import type { Source } from '../types';
 import { useUserStore } from '../store/userStore';
 import { Trash2, FileCode } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface SourceTableProps {
   sources: Source[];
-  onCheck: (id: string, userName: string) => void;
+  onCheck: (source: Source, userName: string) => void;
   onDelete: (id: string) => void;
 }
 
@@ -57,9 +58,13 @@ export const SourceTable = ({ sources, onCheck, onDelete }: SourceTableProps) =>
   const handleCheckboxChange = (source: Source) => {
     if (!userName) return;
 
-    // Toggle: if already checked by current user, uncheck; otherwise check
+    if (source.useUser && source.useUser !== userName) {
+      toast.error(`${source.useUser}님이 사용 중입니다`);
+      return;
+    }
+
     const isChecked = source.useUser === userName;
-    onCheck(source.id, isChecked ? '' : userName);
+    onCheck(source, isChecked ? '' : userName);
   };
 
   return (
@@ -100,12 +105,13 @@ export const SourceTable = ({ sources, onCheck, onDelete }: SourceTableProps) =>
                   onContextMenu={(e) => handleContextMenu(e, source.id)}
                 >
                   <td>
-                    <input
-                      type="checkbox"
-                      checked={!!source.useUser}
-                      onChange={() => handleCheckboxChange(source)}
-                      className="table-checkbox"
-                    />
+                      <input
+                        type="checkbox"
+                        checked={!!source.useUser}
+                        onChange={() => handleCheckboxChange(source)}
+                        disabled={!!source.useUser && source.useUser !== userName}
+                        className="table-checkbox"
+                      />
                   </td>
                   <td>
                     <span className="path-label">{source.path}</span>

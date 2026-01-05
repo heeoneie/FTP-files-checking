@@ -6,6 +6,8 @@ import type { RootPath } from '../types';
 import toast from 'react-hot-toast';
 import { FileCheck2, LogOut, Search, Plus, Loader2 } from 'lucide-react';
 import { Avatar, AvatarFallback } from './ui/avatar';
+import { ref, update } from 'firebase/database';
+import { database } from '../lib/firebase';
 
 const ROOT_PATHS: RootPath[] = ['sysadmin', 'www', 'amp_set'];
 
@@ -41,9 +43,19 @@ export const SourceManager = () => {
     setNewSourcePath('');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (userName) {
+      try {
+        const userRef = ref(database, `users/${userName}`);
+        await update(userRef, { isActive: false, logoutAt: Date.now() });
+        toast.success('로그아웃 되었습니다');
+      } catch (error: any) {
+        console.error('Failed to mark user as inactive:', error?.code || error?.message || 'Unknown error');
+        toast.error('서버 로그아웃에 실패했지만 세션은 종료됩니다.');
+      }
+    }
+
     logout();
-    toast.success('로그아웃 되었습니다');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
