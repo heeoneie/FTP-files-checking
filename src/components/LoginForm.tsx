@@ -46,27 +46,26 @@ export const LoginForm = () => {
     setLoading(true);
 
     try {
-      // Use transaction to atomically check and create user
+      // Use transaction to atomically login or create user
       const userRef = ref(database, `users/${trimmedName}`);
 
-      const result = await runTransaction(userRef, (currentData) => {
-        // Block if 동일 이름이 아직 활성 상태
-        if (currentData?.isActive) {
-          return undefined;
+      await runTransaction(userRef, (currentData) => {
+        // If user doesn't exist, create new user
+        if (currentData === null) {
+          return {
+            name: trimmedName,
+            isActive: true,
+            loginAt: Date.now(),
+          } as UserData;
         }
 
+        // If user exists, update login time and set active (always allow re-login)
         return {
-          name: trimmedName,
+          ...currentData,
           isActive: true,
           loginAt: Date.now(),
         } as UserData;
       });
-
-      if (!result.committed) {
-        toast.error('이미 사용 중인 이름입니다');
-        setLoading(false);
-        return;
-      }
 
       setUserName(trimmedName);
       toast.success(`${trimmedName}님 환영합니다!`);
