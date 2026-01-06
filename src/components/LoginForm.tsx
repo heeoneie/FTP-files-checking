@@ -88,8 +88,8 @@ export const LoginForm = () => {
           <p className="auth-panel__eyebrow">Realtime log</p>
           <h1 className="auth-panel__title">FTP 파일 체크인</h1>
           <p className="auth-panel__description">
-            같은 경로를 동시에 수정하지 않도록 담당자를 기록합니다.
-            오늘 사용할 이름을 입력하고 체크인을 완료하세요.
+            같은 경로를 동시에 수정하지 않도록 담당자를 기록합니다. <br />
+            사용할 이름을 입력하고 체크인을 완료하세요.
           </p>
         </div>
 
