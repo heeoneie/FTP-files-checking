@@ -96,14 +96,13 @@ export const LoginForm = () => {
         <form onSubmit={handleSubmit} className="auth-form">
           <div>
             <label htmlFor="name" className="form-label">
-              작업자 이름
+              이름
             </label>
             <input
               id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="예: heeeione / design팀"
               maxLength={MAX_NAME_LENGTH}
               disabled={loading}
               className="form-input"
