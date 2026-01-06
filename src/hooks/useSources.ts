@@ -31,8 +31,8 @@ export const useSources = () => {
         }
         setLoading(false);
       },
-      (error) => {
-        console.error('Error fetching sources:', error.code || error.message || 'Unknown error');
+      (error: any) => {
+        console.error('Error fetching sources:', error?.code || error?.message || 'Unknown error');
         toast.error('데이터를 불러오는데 실패했습니다');
         setLoading(false);
       }
